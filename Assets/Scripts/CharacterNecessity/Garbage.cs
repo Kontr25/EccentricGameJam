@@ -1,18 +1,18 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace CharacterNecessity
 {
     public class Garbage : MonoBehaviour
     {
         [SerializeField] private Outline[] _outlines;
+        [SerializeField] private Animator _animator;
         
         private Coroutine _loadRoutine;
         private Coroutine _unloadRoutine;
         private WaitForSeconds _delay;
         private Food _currentFood;
-        
+        private static readonly int Open = Animator.StringToHash("Open");
+
 
         public Food CurrentFood
         {
@@ -37,6 +37,7 @@ namespace CharacterNecessity
             if (other.TryGetComponent(out Character.CharacterController character) && _currentFood != null)
             {
                 _currentFood.Eat(character.HeadPoint);
+                _animator.SetTrigger(Open);
                 CurrentFood = null;
             }
         }

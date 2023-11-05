@@ -8,15 +8,20 @@ namespace People
 {
     public class HumanMover : MonoBehaviour
     {
+        [SerializeField] private Rigidbody _humanRigidbody;
+        [SerializeField] private Collider _collider;
         [SerializeField] private CharacterMover _player;
         [SerializeField] private float _speed;
         [SerializeField] private float _patrolDelayValue;
         [SerializeField] private NavMeshAgent _agent;
         [SerializeField] private MapBorder _mapBorder;
+        [SerializeField] private float _rotationSpeed;
+        [SerializeField] private HumanAnimator _humanAnimator;
 
+        private bool _runFromCharacter = false;
         private Vector3 _patrolPoint;
         private bool _isCanMove = true;
-        private bool _isPatrol = true;
+        [SerializeField] private bool _isPatrol;
         private Transform _moveTarget;
         private WaitForSeconds _patrolDelay;
         private WaitForSeconds _moveToCharacterDelay = new WaitForSeconds(.5f);
@@ -34,22 +39,7 @@ namespace People
         public CharacterMover Player
         {
             get => _player;
-            set
-            {
-                if (value != null)
-                {
-                    Patrol(false);
-                    _moveTarget = value.transform;
-                    StopMoveToCharacter();
-                    _moveToCharacterRoutine = StartCoroutine(MoveToCharacter());
-                }
-                else
-                {
-                    StopMoveToCharacter();
-                    Patrol(true);
-                }
-                _player = value;
-            }
+            set => _player = value;
         }
 
         public MapBorder BorderMap
@@ -68,27 +58,50 @@ namespace People
             }
         }
 
+        public bool RunFromCharacter
+        {
+            get => _runFromCharacter;
+            set
+            {
+                if (value)
+                {
+                    _humanRigidbody.isKinematic = false;
+                    _agent.enabled = false;
+                    _collider.enabled = value;
+                    Patrol(false);
+                }
+                else
+                {
+                    _humanRigidbody.isKinematic = true;
+                    _collider.enabled = value;
+                    _agent.enabled = true;
+                    Patrol(true);
+                }
+                
+                _runFromCharacter = value;
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            if (_runFromCharacter && _player != null)
+            {
+                Vector3 direction = _player.transform.position - transform.position;
+                _humanRigidbody.velocity = -direction.normalized * _speed;
+                transform.rotation = Quaternion.Slerp(transform.rotation,
+                    Quaternion.LookRotation(-direction),
+                    Time.deltaTime * _rotationSpeed);
+                _humanAnimator.Move(_humanRigidbody.velocity.magnitude);
+            }
+            else
+            {
+                _humanAnimator.Move(_agent.velocity.magnitude);
+            }
+        }
+
         public void MoveTo(Vector3 point)
         {
             _agent.SetDestination(point);
-        }
-
-        private IEnumerator MoveToCharacter()
-        {
-            while (true)
-            {
-                MoveTo(_moveTarget.position);
-                yield return _moveToCharacterDelay;
-            }
-        }
-
-        private void StopMoveToCharacter()
-        {
-            if (_moveToCharacterRoutine != null)
-            {
-                StopCoroutine(_moveToCharacterRoutine);
-                _moveToCharacterRoutine = null;
-            }
         }
 
         public void Patrol(bool value)
@@ -101,33 +114,26 @@ namespace People
                     break;
                 case false:
                     _isPatrol = false;
+                    if (_agent.enabled)
+                    {
+                        _agent.ResetPath();
+                    }
                     if (_patrolRoutine != null)
                     {
                         StopCoroutine(_patrolRoutine);
                     }
-                    _agent.ResetPath();
                     break;
             }
         }
 
         private IEnumerator Patrol()
         {
-            while (true)
+            while (_isPatrol)
             {
                 _patrolPoint = _mapBorder.RandomPosition();
                 MoveTo(_patrolPoint);
                 yield return _patrolDelay;
             }
-        }
-
-        public void StopMove()
-        {
-            _agent.speed = 0;
-        }
-
-        public void StartMove()
-        {
-            _agent.speed = _speed;
         }
     }
 }

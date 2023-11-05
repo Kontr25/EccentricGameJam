@@ -1,6 +1,7 @@
 using System.Collections;
 using CameraChanger;
 using DG.Tweening;
+using People;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -17,6 +18,7 @@ namespace Poop
         [SerializeField] private float _jokeDurationValue;
         [SerializeField] private AudioSource _audioSource;
         [SerializeField] private AudioSource _jokeSound;
+        [SerializeField] private PeopleSpawner _peopleSpawner;
 
         private int _prewiousMouthNumber;
         private int _currentMouthNumber;
@@ -27,9 +29,14 @@ namespace Poop
         private WaitForSeconds _laughMouthMoveDelay;
         private Vector3 _laughMothDefaultLocalPosition;
 
+        public void jokeSound(AudioClip clip)
+        {
+            _jokeDuration = new WaitForSeconds(clip.length);
+            _jokeSound.clip = clip;
+        }
+
         private void Start()
         {
-            _jokeDuration = new WaitForSeconds(_jokeDurationValue);
             _laughMothDefaultLocalPosition = _laughMouth.transform.localPosition;
             _mouthChangeDelay = new WaitForSeconds(_mouthChangeDelayValue);
             _laughMouthMoveDelay = new WaitForSeconds(_laughMouthMoveDelayValue + .1f);
@@ -77,12 +84,17 @@ namespace Poop
         
         private IEnumerator Laugh()
         {
+            
             DisableAllMouth();
             CameraChanger.CameraChanger.Instance.ActivateCamera(NameCamera.PeopleCamera);
             _audioSource.Play();
             _openEyes.SetActive(false);
             _closeEyes.SetActive(true);
             _laughMouth.SetActive(true);
+            for (int i = 0; i < _peopleSpawner.Humans.Count; i++)
+            {
+                _peopleSpawner.Humans[i].humanAnimator.Clamp();
+            }
             Invoke(nameof(RagdoolCamera), 4f);
             while (true)
             {

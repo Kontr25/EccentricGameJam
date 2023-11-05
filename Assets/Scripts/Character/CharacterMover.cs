@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using UnityEngine;
 
 namespace Character
@@ -17,6 +15,20 @@ namespace Character
         private Ray _ray;
         private RaycastHit _hit;
         private bool _isCanJump;
+        private bool _isCanMove = false;
+
+        public bool IsCanMove
+        {
+            get => _isCanMove;
+            set
+            {
+                if (!value)
+                {
+                    _characterRigidbody.velocity = Vector3.zero;
+                }
+                _isCanMove = value;
+            }
+        }
 
         protected bool CanJump()
         {
@@ -28,7 +40,7 @@ namespace Character
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space) && CanJump())
+            if (Input.GetKeyDown(KeyCode.Space) && CanJump() && _isCanMove)
             {
                 Jump();
             }
@@ -36,21 +48,24 @@ namespace Character
 
         public void FixedUpdate()
         {
-            float h = Input.GetAxis("Horizontal");
-            float v = Input.GetAxis("Vertical");
-
-            Vector3 velocity = new Vector3(h, 0, v) * _speed;
-            velocity.y = _characterRigidbody.velocity.y;
-            _characterRigidbody.velocity = velocity;
-            
-            Vector3 _direction = new Vector3(h, 0f, v);
-            _direction = _direction.normalized;
-            _direction = new Vector3(_direction.x, 0, _direction.z);
-            if (_direction != Vector3.zero)
+            if (_isCanMove)
             {
-                _characterTransform.rotation = Quaternion.Slerp(_characterTransform.rotation,
-                    Quaternion.LookRotation(_direction),
-                    Time.deltaTime * _rotationSpeed);
+                float h = Input.GetAxis("Horizontal");
+                float v = Input.GetAxis("Vertical");
+
+                Vector3 velocity = new Vector3(h, 0, v) * _speed;
+                velocity.y = _characterRigidbody.velocity.y;
+                _characterRigidbody.velocity = velocity;
+            
+                Vector3 _direction = new Vector3(h, 0f, v);
+                _direction = _direction.normalized;
+                _direction = new Vector3(_direction.x, 0, _direction.z);
+                if (_direction != Vector3.zero)
+                {
+                    _characterTransform.rotation = Quaternion.Slerp(_characterTransform.rotation,
+                        Quaternion.LookRotation(_direction),
+                        Time.deltaTime * _rotationSpeed);
+                }
             }
         }
 

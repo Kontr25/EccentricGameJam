@@ -1,5 +1,5 @@
-using System;
 using System.Collections;
+using CharacterNecessity;
 using DG.Tweening;
 using Poop;
 using UIElements;
@@ -13,7 +13,6 @@ namespace Character
         [SerializeField] private CharacterAnimator _characterAnimator;
         [SerializeField] private CharacterRagdoll _characterRagdoll;
         [SerializeField] private CharacterMover _characterMover;
-        [SerializeField] private float _poopDelayValue;
         [SerializeField] private PoopController _poopController;
         [SerializeField] private Transform _headPoint;
         [SerializeField] private AudioSource _hit;
@@ -21,10 +20,17 @@ namespace Character
         [SerializeField] private float _soundDelayValue;
         [SerializeField] private DamageWindow[] _damageWindows;
         [SerializeField] private GameObject[] _skins;
+        [SerializeField] private GameObject[] _ragdollSkins;
+        [SerializeField] private AudioClip[] _joke;
+        [SerializeField] private CharacterNecessityUI _characterNecessityUI;
+        [SerializeField] private Collider _collider;
+        [SerializeField] private AudioSource _doPoopSound;
+        [SerializeField] private AudioSource _poopSound;
 
+        private bool _canListen = true;
         private Coroutine _hitRoutine;
         private WaitForSeconds _soundDelay;
-        private bool _isCanJoke = true;
+        private bool _isCanJoke = false;
         private Coroutine _doPoopRoutine;
         private WaitForSeconds _poopDelay;
         private bool _isClear = false;
@@ -49,10 +55,30 @@ namespace Character
             set => _characterAnimator = value;
         }
 
+        public CharacterNecessityUI characterNecessityUI
+        {
+            get => _characterNecessityUI;
+            set => _characterNecessityUI = value;
+        }
+
+        public bool CanListen
+        {
+            get => _canListen;
+            set
+            {
+                if (value)
+                {
+                    _collider.enabled = false;
+                    _collider.enabled = true;
+                }
+                _canListen = value;
+            }
+        }
+
         private void Start()
         {
             _soundDelay = new WaitForSeconds(_soundDelayValue);
-            _poopDelay = new WaitForSeconds(_poopDelayValue);
+            _poopDelay = new WaitForSeconds(_doPoopSound.clip.length);
         }
 
         public void SetCharacterSkin(CharacterName name)
@@ -63,21 +89,33 @@ namespace Character
             {
                 case CharacterName.Eldar:
                     _skins[0].SetActive(true);
+                    _ragdollSkins[0].SetActive(true);
+                    _poopController.poopTalker.jokeSound(_joke[0]);
                     break;
                 case CharacterName.Maloy:
                     _skins[1].SetActive(true);
+                    _ragdollSkins[1].SetActive(true);
+                    _poopController.poopTalker.jokeSound(_joke[1]);
                     break;
                 case CharacterName.Leha:
                     _skins[2].SetActive(true);
+                    _ragdollSkins[2].SetActive(true);
+                    _poopController.poopTalker.jokeSound(_joke[2]);
                     break;
                 case CharacterName.Kolya:
                     _skins[3].SetActive(true);
+                    _ragdollSkins[3].SetActive(true);
+                    _poopController.poopTalker.jokeSound(_joke[3]);
                     break;
                 case CharacterName.Kirill:
                     _skins[4].SetActive(true);
+                    _ragdollSkins[4].SetActive(true);
+                    _poopController.poopTalker.jokeSound(_joke[4]);
                     break;
                 case CharacterName.Idrak:
                     _skins[5].SetActive(true);
+                    _ragdollSkins[5].SetActive(true);
+                    _poopController.poopTalker.jokeSound(_joke[5]);
                     break;
             }
         }
@@ -87,6 +125,7 @@ namespace Character
             for (int i = 0; i < _skins.Length; i++)
             {
                 _skins[i].SetActive(false);
+                _ragdollSkins[i].SetActive(false);
             }
         }
 
@@ -119,7 +158,9 @@ namespace Character
         private IEnumerator DoPoop()
         {
             _characterAnimator.DoPoop();
+            _doPoopSound.Play();
             yield return _poopDelay;
+            _poopSound.Play();
             _poopController.gameObject.SetActive(true);
             _poopController.StandUp();
             _characterAnimator.gameObject.SetActive(false);

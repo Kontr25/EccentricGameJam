@@ -1,5 +1,3 @@
-using System;
-using Character;
 using DefaultNamespace;
 using UnityEngine;
 using CharacterController = Character.CharacterController;
@@ -13,7 +11,10 @@ namespace People
         [SerializeField] private HumanMover humanMover;
         [SerializeField] private HumanDialogWindow _dialogWindowPrefab;
         [SerializeField] private Transform _dialogWindowPoint;
+        [SerializeField] private Outline[] _humanOutLine;
+        [SerializeField] private HumanAgroZone _humanAgroZone;
 
+        private bool _canTalk = true;
         private CharacterController _currentCharacter;
         private HumanDialogWindow _currentWindow;
         [SerializeField] private AudioSource mem;
@@ -24,15 +25,27 @@ namespace People
             set => _currentWindow = value;
         }
 
-        private void Update()
+        public bool CanTalk
         {
-            if (_currentCharacter != null)
+            get => _canTalk;
+            set
             {
-                Vector3 direction = _currentCharacter.transform.position - humanMover.transform.position;
+                if (!value)
+                {
+                    for (int i = 0; i < _humanOutLine.Length; i++)
+                    {
+                        _humanOutLine[i].enabled = value;
+                    }
+                    _humanAgroZone.gameObject.SetActive(false);
+                    _currentCharacter = null;
+                    humanAnimator.AngryTalking(false);
+                    humanMover.RunFromCharacter = false;
+                    humanMover.Speed = 1f;
+                    humanMover.Player = null;
+                    gameObject.SetActive(false);
+                }
                 
-                humanMover.transform.rotation = Quaternion.Slerp(humanMover.transform.rotation,
-                Quaternion.LookRotation(direction.normalized),
-                Time.deltaTime * 10);
+                _canTalk = value;
             }
         }
 
@@ -46,8 +59,9 @@ namespace People
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent(out CharacterController character))
+            if (other.TryGetComponent(out CharacterController character) && _canTalk && character.CanListen)
             {
+                character.CanListen = false;
                 _currentCharacter = character;
                 CheckingForNull();
                 if (mem.isPlaying)
@@ -58,25 +72,33 @@ namespace People
                 {
                     _currentWindow.TargetCharacter = character;
                 }
-                if (_human.HumanType == HumanType.FirstManType || _human.HumanType == HumanType.SecondManType)
+                if(mem.clip == null)
                 {
-                    mem.clip = PeopleSoundManager.Instance.RandomManSound();
-                }
-                else if (_human.HumanType == HumanType.FirstWomanType || _human.HumanType == HumanType.SecondWomanType)
-                {
-                    mem.clip = PeopleSoundManager.Instance.RandomWomanSound();
+                    if (_human.HumanType == HumanType.FirstManType || _human.HumanType == HumanType.SecondManType)
+                    {
+                        mem.clip = PeopleSoundManager.Instance.RandomManSound();
+                    }
+                    else if (_human.HumanType == HumanType.FirstWomanType || _human.HumanType == HumanType.SecondWomanType)
+                    {
+                        mem.clip = PeopleSoundManager.Instance.RandomWomanSound();
+                    }
+                    
                 }
                 mem.Play();
                 _currentWindow.LoadWindow(mem.clip.length);
-                humanAnimator.AngryTalking();
-                humanMover.StopMove();
+                humanAnimator.AngryTalking(true);
             }
         }
         
         private void OnTriggerExit(Collider other)
         {
-            if (other.TryGetComponent(out CharacterController character))
+            if (other.TryGetComponent(out CharacterController character) && _canTalk)
             {
+                mem.Stop();
+                if (_currentCharacter != null)
+                {
+                    _currentCharacter.CanListen = true;
+                }
                 _currentCharacter = null;
                 CheckingForNull();
                 if (_currentWindow.TargetCharacter == null)
@@ -84,8 +106,7 @@ namespace People
                     _currentWindow.TargetCharacter = character;
                 }
                 _currentWindow.UnLoadWindow();
-                humanAnimator.StopAngryTalking();
-                humanMover.StartMove();
+                humanAnimator.AngryTalking(false);
             }
         }
 

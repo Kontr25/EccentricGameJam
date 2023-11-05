@@ -8,10 +8,15 @@ namespace Poop
     {
         [SerializeField] private float _appirianceDelay;
         [SerializeField] private PoopTalker _poopTalker;
-        
+
+        public PoopTalker poopTalker
+        {
+            get => _poopTalker;
+            set => _poopTalker = value;
+        }
+
         public void StandUp()
         {
-            Debug.Log("KEKKKKKK");
             CameraChanger.CameraChanger.Instance.ActivateCamera(NameCamera.PoopCamera);
             transform.DOScale(Vector3.one, _appirianceDelay).onComplete = () =>
             {

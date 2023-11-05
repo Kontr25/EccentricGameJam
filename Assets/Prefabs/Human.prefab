@@ -128,8 +128,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 0
-  outlineColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
-  outlineWidth: 2
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
@@ -261,8 +261,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 0
-  outlineColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
-  outlineWidth: 2
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
@@ -527,8 +527,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2603cc821d5a413e9bf66bd7d354ec89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _agent: {fileID: 1800566791121450010}
-  _enemyAnimator: {fileID: 5302549156208851739}
+  _humanAnimator: {fileID: 5302549156208851739}
 --- !u!1 &1470764752597217209
 GameObject:
   m_ObjectHideFlags: 0
@@ -676,6 +675,12 @@ MonoBehaviour:
   humanMover: {fileID: 1800566791121450011}
   _dialogWindowPrefab: {fileID: 564189623770168239, guid: 74428335bc20c1143b32688f4fbf3734, type: 3}
   _dialogWindowPoint: {fileID: 957534144569961770}
+  _humanOutLine:
+  - {fileID: 7033672916894373589}
+  - {fileID: 3399913869339216246}
+  - {fileID: 1511350794879166782}
+  - {fileID: 246935171994946521}
+  _humanAgroZone: {fileID: 1800566789943492509}
   mem: {fileID: 4113803220737131032}
 --- !u!54 &1800566789734997904
 Rigidbody:
@@ -704,7 +709,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2.5
+  m_Radius: 4
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1800566789943492481
 GameObject:
@@ -764,7 +769,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 4
+  m_Radius: 5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1800566789943492483
 Rigidbody:
@@ -794,6 +799,8 @@ GameObject:
   - component: {fileID: 1800566791121450004}
   - component: {fileID: 1800566791121450011}
   - component: {fileID: 1800566791121450010}
+  - component: {fileID: 2795367833868959970}
+  - component: {fileID: 4398638377868956640}
   m_Layer: 0
   m_Name: Human
   m_TagString: Untagged
@@ -843,6 +850,7 @@ MonoBehaviour:
   _humanAgroZone: {fileID: 1800566789943492509}
   _humanAngryTalking: {fileID: 1800566789734997905}
   _humanShowPlaceTrigger: {fileID: 5906319014052071657}
+  _humanAnimator: {fileID: 5302549156208851732}
 --- !u!114 &1800566791121450011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -855,11 +863,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 462de712cf914dfc97accd2636063ea2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _humanRigidbody: {fileID: 4398638377868956640}
+  _collider: {fileID: 2795367833868959970}
   _player: {fileID: 0}
   _speed: 1
   _patrolDelayValue: 10
   _agent: {fileID: 1800566791121450010}
   _mapBorder: {fileID: 0}
+  _rotationSpeed: 10
+  _humanAnimator: {fileID: 5302549156208851732}
+  _isPatrol: 0
 --- !u!195 &1800566791121450010
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -874,7 +887,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 1.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -882,6 +895,36 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &2795367833868959970
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800566791121450008}
+  m_Material: {fileID: 13400000, guid: ed92dc11cb15f744ba53cbd8b6f41d29, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 0
+  m_Radius: 0.23
+  m_Height: 1.86
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.01, z: 0}
+--- !u!54 &4398638377868956640
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800566791121450008}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 116
+  m_CollisionDetection: 0
 --- !u!1 &1949421517495242223
 GameObject:
   m_ObjectHideFlags: 0
@@ -2004,8 +2047,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 0
-  outlineColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
-  outlineWidth: 2
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
@@ -2308,8 +2351,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 0
-  outlineColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
-  outlineWidth: 2
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []

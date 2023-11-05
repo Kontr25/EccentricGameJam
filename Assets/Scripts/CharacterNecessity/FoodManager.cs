@@ -10,6 +10,7 @@ namespace CharacterNecessity
 
         [SerializeField] private List<Food> _foods;
         [SerializeField] private List<Garbage> _garbages;
+        [SerializeField] private AudioSource _eatSound;
 
         public List<Food> Foods
         {
@@ -28,6 +29,12 @@ namespace CharacterNecessity
             {
                 Destroy(gameObject);
             }
+        }
+
+        public void Eat(Food food)
+        {
+            _eatSound.Play();
+            _foods.Remove(food);
         }
 
         private void Start()

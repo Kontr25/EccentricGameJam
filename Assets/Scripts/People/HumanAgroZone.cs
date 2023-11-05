@@ -13,6 +13,7 @@ namespace People
             {
                 humanMover.Player = character;
                 humanMover.Speed = 2f;
+                humanMover.RunFromCharacter = true;
             }
         }
 
@@ -20,6 +21,7 @@ namespace People
         {
             if (other.TryGetComponent(out CharacterMover character))
             {
+                humanMover.RunFromCharacter = false;
                 humanMover.Speed = 1f;
                 humanMover.Player = null;
             }

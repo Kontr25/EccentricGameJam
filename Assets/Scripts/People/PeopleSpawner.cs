@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using CharacterNecessity;
 using Environment;
 using Unity.Mathematics;
 using UnityEngine;
@@ -10,12 +10,26 @@ namespace People
     public class PeopleSpawner : MonoBehaviour
     {
         public static PeopleSpawner Instance;
-        [SerializeField] private int _peopleCount;
+        [Range(1, 6)]
+        [SerializeField] private int _manCount;
+        
+        [Range(1, 5)]
+        [SerializeField] private int _womanCount;
+        
         [SerializeField] private MapBorder _mapBorder;
         [SerializeField] private Human _human;
         [SerializeField] private List<Human> _humans;
         [SerializeField] private Transform _showPlacesParent;
         [SerializeField] private List<Transform> _showPlaces = new List<Transform>();
+        [SerializeField] private CharacterNecessityUI _foodcharacterNecessityUI;
+
+        private int _peopleCount;
+
+        public List<Human> Humans
+        {
+            get => _humans;
+            set => _humans = value;
+        }
 
         private void Awake()
         {
@@ -32,21 +46,34 @@ namespace People
 
         private void Start()
         {
-            SpawnPeople();
+            _peopleCount = _manCount + _womanCount;
+            SpawnPeople(_manCount, true);
+            SpawnPeople(_womanCount, false);
             foreach (Transform place in _showPlacesParent)
             {
                 _showPlaces.Add(place);
             }
+
+            _foodcharacterNecessityUI.maxCountJokes = _peopleCount;
         }
 
-        private void SpawnPeople()
+        private void SpawnPeople(int count, bool isMan)
         {
-            for (int i = 0; i < _peopleCount; i++)
+            for (int i = 0; i < count; i++)
             {
                 Human human = Instantiate(_human, _mapBorder.RandomPosition(), quaternion.identity);
                 human.Mover.BorderMap = _mapBorder;
                 _humans.Add(human);
-                int randomHumanType = Random.Range(1, 5);
+
+                int randomHumanType = 0;
+                if (isMan)
+                {
+                    randomHumanType = Random.Range(1, 3);
+                }
+                else
+                {
+                    randomHumanType = Random.Range(3, 5);
+                }
                 switch (randomHumanType)
                 {
                     case 1:

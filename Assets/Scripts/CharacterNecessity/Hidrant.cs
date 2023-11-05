@@ -17,14 +17,14 @@ namespace CharacterNecessity
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent(out Character.CharacterController character) && character.IsCanJoke)
+            if (other.TryGetComponent(out Character.CharacterController character))
             {
                 if (_unloadRoutine != null)
                 {
                     StopCoroutine(_unloadRoutine);
                 }
                 character.CharAnimator.IsWashing(true);
-                _loadRoutine = StartCoroutine(FoodNecessityUI.Instance.smoothWash( 1f, 2f, character));
+                _loadRoutine = StartCoroutine(CharacterNecessityUI.Instance.smoothWash( 1f, 4f, character));
             }
         }
 
@@ -37,7 +37,10 @@ namespace CharacterNecessity
                     StopCoroutine(_loadRoutine);
                 }
                 character.CharAnimator.IsWashing(false);
-                _unloadRoutine = StartCoroutine(FoodNecessityUI.Instance.smoothWash( 0, 1f, character));
+                if (CharacterNecessityUI.Instance.WashBar.fillAmount < 0.99f)
+                {
+                    _unloadRoutine = StartCoroutine(CharacterNecessityUI.Instance.smoothWash( 0, 1f, character));
+                }
             }
         }
     }

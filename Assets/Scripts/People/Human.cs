@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using UnityEngine;
 
 namespace People
@@ -14,6 +14,7 @@ namespace People
         [SerializeField] private HumanAgroZone _humanAgroZone;
         [SerializeField] private HumanAngryTalkingZone _humanAngryTalking;
         [SerializeField] private HumanShowPlaceTrigger _humanShowPlaceTrigger;
+        [SerializeField] private HumanAnimator _humanAnimator;
         
         private PeopleSpawner _peopleSpawner;
 
@@ -55,6 +56,12 @@ namespace People
             set => _humanType = value;
         }
 
+        public HumanAnimator humanAnimator
+        {
+            get => _humanAnimator;
+            set => _humanAnimator = value;
+        }
+
         public void GoOnShow(Transform showPlace)
         {
             _humanMover.Speed = 3.5f;
@@ -63,6 +70,12 @@ namespace People
             _humanMover.Patrol(false);
             _humanShowPlaceTrigger.SetTarget(showPlace);
             _humanMover.MoveTo(showPlace.position);
+            //StartCoroutine(GoShowPlace(showPlace));
+        }
+
+        private IEnumerator GoShowPlace(Transform showPlace)
+        {
+            yield return new WaitForSeconds(.1f);
         }
     }
 }

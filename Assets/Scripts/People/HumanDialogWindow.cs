@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -115,6 +114,8 @@ namespace People
 
         private void Shot()
         {
+            _humanAngryTalkingZone.CanTalk = false;
+            _character.characterNecessityUI.JokeIsListened();
             _body.DOLocalMove(_bodyTarget.localPosition, .3f);
             _humanAngryTalkingZone.CurrentWindow = null;
             _mainCamera = null;
@@ -122,6 +123,7 @@ namespace People
             transform.SetParent(_character.HeadPoint);
             transform.DOLocalJump(Vector3.zero, .5f, 1, .5f).onComplete = () =>
             {
+                _character.CanListen = true;
                 _character.Hit();
                 transform.SetParent(null);
                 _body.gameObject.SetActive(false);

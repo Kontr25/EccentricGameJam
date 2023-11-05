@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -8,8 +8,8 @@ namespace DefaultNamespace
     {
         public static PeopleSoundManager Instance;
         
-        [SerializeField] private AudioClip[] _manSounds;
-        [SerializeField] private AudioClip[] _womanSounds;
+        [SerializeField] private List<AudioClip> _manSounds;
+        [SerializeField] private List<AudioClip> _womanSounds;
 
         private void Awake()
         {
@@ -26,12 +26,18 @@ namespace DefaultNamespace
 
         public AudioClip RandomManSound()
         {
-            return _manSounds[Random.Range(0, _manSounds.Length)];
+            int clipNumber = Random.Range(0, _manSounds.Count);
+            AudioClip clip = _manSounds[clipNumber];
+            _manSounds.Remove(_manSounds[clipNumber]);
+            return clip;
         }
         
         public AudioClip RandomWomanSound()
         {
-            return _womanSounds[Random.Range(0, _womanSounds.Length)];
+            int clipNumber = Random.Range(0, _womanSounds.Count);
+            AudioClip clip = _womanSounds[clipNumber];
+            _womanSounds.Remove(_womanSounds[clipNumber]);
+            return clip;
         }
         
         public float SoundsTime(AudioSource sound)

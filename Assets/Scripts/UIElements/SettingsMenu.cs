@@ -1,3 +1,4 @@
+using Character;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -16,6 +17,10 @@ public class SettingsMenu : MonoBehaviour
     [SerializeField] private Sprite _disabledSoundSprite;
     [SerializeField] private Sprite _disabledBGMusicSprite;
     [SerializeField] private Sprite _enabledBGMusicSprite;
+    [SerializeField] private GameObject[] _UIInPlayTime;
+    [SerializeField] private CharacterMover _characterMover;
+    [SerializeField] private Transform[] _settingsPoint;
+    [SerializeField] private Transform[] _hintPoint;
 
     private bool _isOpen = true;
     private bool _volumeEnable = true;
@@ -33,21 +38,42 @@ public class SettingsMenu : MonoBehaviour
     {
         if (_isOpen == false)
         {
-            _settingsWindow.DOMoveX(_settingsWindowDefaultPosition.x, _openTime);
-            _hintsWindow.DOMoveX(_hintsWindowDefaultPosition.x, _openTime);
+            PlayTimeUIDisable();
+            _characterMover.IsCanMove = false;
+            AudioListener.volume = 0.05f;
+            _characterMover.enabled = false;
+            _settingsWindow.DOMove(_settingsPoint[0].position, _openTime);
+            _hintsWindow.DOMove(_hintPoint[0].position, _openTime);
             _closePanel.SetActive(true);
         }
         else
         {
-            _settingsWindow.DOMoveX(_settingsWindowDefaultPosition.x + 1000, _openTime);
-            _hintsWindow.DOMoveX(_hintsWindowDefaultPosition.x - 1000, _openTime);
+            Invoke(nameof(PlayTimeUIEnable), _openTime);
+            AudioListener.volume = 1;
+            _characterMover.IsCanMove = true;
+            _settingsWindow.DOMove(_settingsPoint[1].position, _openTime);
+            _hintsWindow.DOMove(_hintPoint[1].position, _openTime);
             _closePanel.SetActive(false);
         }
 
         _isOpen = !_isOpen;
     }
 
+    private void PlayTimeUIDisable()
+    {
+        for (int i = 0; i < _UIInPlayTime.Length; i++)
+        {
+            _UIInPlayTime[i].SetActive(false);
+        }
+    }
 
+    private void PlayTimeUIEnable()
+    {
+        for (int i = 0; i < _UIInPlayTime.Length; i++)
+        {
+            _UIInPlayTime[i].SetActive(true);
+        }
+    }
     public void SwitchAllSound()
     {
         _volumeEnable = !_volumeEnable;

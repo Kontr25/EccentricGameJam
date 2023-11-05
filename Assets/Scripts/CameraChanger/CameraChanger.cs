@@ -1,5 +1,5 @@
-using System;
 using Cinemachine;
+using Finish;
 using UnityEngine;
 
 namespace CameraChanger
@@ -51,6 +51,7 @@ namespace CameraChanger
                     _allCameras[2].Priority = 10;
                     break;
                 case NameCamera.RagdollCamera:
+                    FinishAction.Instance.Finish();
                     _allCameras[3].Priority = 10;
                     break;
             }
